@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Arduino Potentiometer Simulation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .section { margin-bottom: 20px; }
+    .output-box { border: 1px solid #333; padding: 10px; width: 300px; }
+    .analog-bar { height: 20px; background: #4caf50; }
+  </style>
+</head>
+<body>
+  <h2>Arduino Potentiometer Simulation</h2>
+
+  <!-- Potentiometer Slider -->
+  <div class="section">
+    <label for="potSlider">Potentiometer (0–5V):</label><br>
+    <input type="range" id="potSlider" min="0" max="5" step="0.1" value="2.5">
+    <span id="voltageDisplay">2.5 V</span>
+  </div>
+
+  <!-- Baud Rate Checkboxes -->
+  <div class="section">
+    <label>Select Baud Rate:</label><br>
+    <input type="checkbox" name="baud" value="9600">9600<br>
+    <input type="checkbox" name="baud" value="19200">19200<br>
+    <input type="checkbox" name="baud" value="38400">38400<br>
+    <input type="checkbox" name="baud" value="115200">115200<br>
+    <span id="baudDisplay">Selected: none</span>
+  </div>
+
+  <!-- Analog Output -->
+  <div class="section">
+    <label>Analog Output (PWM duty cycle):</label>
+    <div class="output-box">
+      <div id="analogBar" class="analog-bar" style="width:50%"></div>
+    </div>
+    <span id="analogValue">Duty Cycle: 50%</span>
+  </div>
+
+  <a href="sensor/calibration.html"> so ....at this controller</a>
+
+  <script>
+    const potSlider = document.getElementById("potSlider");
+    const voltageDisplay = document.getElementById("voltageDisplay");
+    const baudDisplay = document.getElementById("baudDisplay");
+    const analogBar = document.getElementById("analogBar");
+    const analogValue = document.getElementById("analogValue");
+
+    // Update voltage and analog output
+    potSlider.addEventListener("input", () => {
+      const voltage = parseFloat(potSlider.value);
+      voltageDisplay.textContent = voltage.toFixed(1) + " V";
+
+      // Map 0–5V to 0–100% duty cycle
+      const dutyCycle = (voltage / 5) * 100;
+      analogBar.style.width = dutyCycle + "%";
+      analogValue.textContent = "Duty Cycle: " + dutyCycle.toFixed(0) + "%";
+    });
+
+    // Update baud rate selection
+    const baudCheckboxes = document.querySelectorAll("input[name='baud']");
+    baudCheckboxes.forEach(cb => {
+      cb.addEventListener("change", () => {
+        const selected = Array.from(baudCheckboxes)
+          .filter(c => c.checked)
+          .map(c => c.value);
+        baudDisplay.textContent = selected.length > 0 
+          ? "Selected: " + selected.join(", ") 
+          : "Selected: none";
+      });
+    });
+  </script>
+</body>
+</html>

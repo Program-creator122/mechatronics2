@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Actuator Speed Simulation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .section { margin-bottom: 20px; }
+    canvas { border: 1px solid #333; }
+  </style>
+</head>
+<body>
+  <h2>Actuator Speed Simulation Game</h2>
+
+  <!-- Distance Slider -->
+  <div class="section">
+    <label for="distanceSlider">Distance (1–100 cm):</label><br>
+    <input type="range" id="distanceSlider" min="1" max="100" step="1" value="50">
+    <span id="distanceDisplay">50 cm</span>
+  </div>
+
+  <!-- Time Slider -->
+  <div class="section">
+    <label for="timeSlider">Time per cm (1 ms – 1000 ms):</label><br>
+    <input type="range" id="timeSlider" min="1" max="1000" step="1" value="500">
+    <span id="timeDisplay">500 ms/cm</span>
+  </div>
+
+  <!-- Speed Display -->
+  <div class="section">
+    <label>Actuator Speed:</label>
+    <span id="speedDisplay">0 cm/s</span>
+  </div>
+
+  <!-- Speed Curve -->
+  <div class="section">
+    <label>Speed Curve Over Time:</label><br>
+    <canvas id="speedCanvas" width="600" height="200"></canvas>
+  </div>
+
+ 
+
+  <script>
+    const distanceSlider = document.getElementById("distanceSlider");
+    const timeSlider = document.getElementById("timeSlider");
+    const distanceDisplay = document.getElementById("distanceDisplay");
+    const timeDisplay = document.getElementById("timeDisplay");
+    const speedDisplay = document.getElementById("speedDisplay");
+    const canvas = document.getElementById("speedCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let time = 0;
+    let dataPoints = [];
+
+    function updateSimulation() {
+      const distance = parseInt(distanceSlider.value);
+      const timePerCm = parseInt(timeSlider.value);
+
+      distanceDisplay.textContent = distance + " cm";
+      timeDisplay.textContent = timePerCm + " ms/cm";
+
+      // Speed = distance / total time
+      const totalTimeMs = distance * timePerCm;
+      const speed = (distance / (totalTimeMs / 1000)); // cm/s
+
+      speedDisplay.textContent = speed.toFixed(2) + " cm/s";
+
+      // Store data point
+      dataPoints.push({ t: time, speed: speed });
+      if (dataPoints.length > 100) dataPoints.shift();
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw axes
+      ctx.beginPath();
+      ctx.moveTo(40, 10);
+      ctx.lineTo(40, 190);
+      ctx.lineTo(590, 190);
+      ctx.strokeStyle = "#000";
+      ctx.stroke();
+
+      // Draw curve
+      ctx.beginPath();
+      dataPoints.forEach((point, index) => {
+        const x = 40 + (index * (550 / 100));
+        const y = 190 - (point.speed * 1.5); // scale speed to canvas
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = "#2196f3";
+      ctx.stroke();
+
+      time++;
+    }
+
+    // Update every 200ms
+    setInterval(updateSimulation, 200);
+
+    // Update immediately when sliders move
+    distanceSlider.addEventListener("input", updateSimulation);
+    timeSlider.addEventListener("input", updateSimulation);
+  </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Distance Sensor Calibration Simulation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .section { margin-bottom: 20px; }
+    canvas { border: 1px solid #333; }
+  </style>
+</head>
+<body>
+  <h2>Distance Sensor Calibration Game</h2>
+
+  <!-- Potentiometer Slider -->
+  <div class="section">
+    <label for="potSlider">Calibration Potentiometer (0–5V):</label><br>
+    <input type="range" id="potSlider" min="0" max="5" step="0.1" value="2.5">
+    <span id="voltageDisplay">2.5 V</span>
+  </div>
+
+  <!-- Distance Display -->
+  <div class="section">
+    <label>Simulated Distance:</label>
+    <span id="distanceDisplay">0 cm</span>
+  </div>
+
+  <!-- PWM Curve -->
+  <div class="section">
+    <label>PWM Duty Cycle Curve (rate of change):</label><br>
+    <canvas id="pwmCanvas" width="600" height="200"></canvas>
+  </div>
+
+   <a href="actuator/actuator.html">so.... at this distance </a>
+
+  <script>
+    const potSlider = document.getElementById("potSlider");
+    const voltageDisplay = document.getElementById("voltageDisplay");
+    const distanceDisplay = document.getElementById("distanceDisplay");
+    const canvas = document.getElementById("pwmCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let time = 0;
+    let dataPoints = [];
+
+    function updateSimulation() {
+      const voltage = parseFloat(potSlider.value);
+      voltageDisplay.textContent = voltage.toFixed(1) + " V";
+
+      // Map voltage to distance (0–5V → 0–100 cm)
+      const distance = (voltage / 5) * 100;
+      distanceDisplay.textContent = distance.toFixed(1) + " cm";
+
+      // Map distance to PWM duty cycle (0–100 cm → 0–100%)
+      const dutyCycle = (distance / 100) * 100;
+
+      // Store data point
+      dataPoints.push({ t: time, duty: dutyCycle });
+      if (dataPoints.length > 100) dataPoints.shift(); // keep last 100 points
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw axes
+      ctx.beginPath();
+      ctx.moveTo(40, 10);
+      ctx.lineTo(40, 190);
+      ctx.lineTo(590, 190);
+      ctx.strokeStyle = "#000";
+      ctx.stroke();
+
+      // Draw curve
+      ctx.beginPath();
+      dataPoints.forEach((point, index) => {
+        const x = 40 + (index * (550 / 100));
+        const y = 190 - (point.duty * 1.8); // scale duty cycle to canvas
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = "#4caf50";
+      ctx.stroke();
+
+      time++;
+    }
+
+    // Update every 200ms
+    setInterval(updateSimulation, 200);
+
+    // Update immediately when slider moves
+    potSlider.addEventListener("input", updateSimulation);
+  </script>
+</body>
+</html>

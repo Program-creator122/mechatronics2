@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sensor Stick Simulation</title>
+  <style>
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; }
+    #gameArea { position: relative; width: 600px; height: 400px; background: #eee; overflow: hidden; }
+    .stick { position: absolute; left: 50px; top: 180px; width: 20px; height: 40px; background: blue; }
+    .obstacle { position: absolute; left: 400px; top: 160px; width: 40px; height: 80px; background: red; }
+  </style>
+</head>
+<body>
+  <div id="gameArea">
+    <div class="stick" id="stick"></div>
+    <div class="obstacle" id="obstacle"></div>
+  </div>
+
+  <a href="الارقام/sim.html"> lets go</a>
+
+  <script>
+    const stick = document.getElementById("stick");
+    const obstacle = document.getElementById("obstacle");
+
+    function detectCollision() {
+      const stickRect = stick.getBoundingClientRect();
+      const obstacleRect = obstacle.getBoundingClientRect();
+
+      if (
+        stickRect.right >= obstacleRect.left &&
+        stickRect.left <= obstacleRect.right &&
+        stickRect.bottom >= obstacleRect.top &&
+        stickRect.top <= obstacleRect.bottom
+      ) {
+        stick.style.background = "green"; // العصا استشعرت الحاجز
+      } else {
+        stick.style.background = "blue"; // لا يوجد حاجز
+      }
+    }
+
+    // حركة العصا للأمام
+    let pos = 50;
+    setInterval(() => {
+      pos += 5;
+      stick.style.left = pos + "px";
+      detectCollision();
+    }, 300);
+  </script>
+</body>
+</html>
